@@ -15,7 +15,7 @@ void signal_handler(int signal) {
 
 int main() {
     // 1. 读取一张本地图片，用于推流
-    cv::Mat src_img = cv::imread(PROJECT_ROOT_DIR "/src.PNG");
+    cv::Mat src_img = cv::imread(PROJECT_ROOT_DIR "../_sources/src.PNG");
     if (src_img.empty()) {
         std::cerr << "Failed to load image. Exiting." << std::endl;
         return -1;

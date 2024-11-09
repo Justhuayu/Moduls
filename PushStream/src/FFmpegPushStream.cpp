@@ -34,8 +34,14 @@ void FFmpegPushStream::InitFFmpeg()
     }
 }
 
-bool FFmpegPushStream::PushStream(cv::Mat& frame, int frameCount)
+bool FFmpegPushStream::PushStream(cv::Mat& frame, uint64_t  frameCount,int mode)
 {
+    // static int count = 1;
+    // if(count>0)
+    // {
+    //     std::cout<<"use ffmpeg new api!"<<std::endl;
+    //     count--;
+    // }
     AVPacket *pkt = av_packet_alloc();
     if(!pkt)
     {
@@ -97,15 +103,8 @@ bool FFmpegPushStream::PushStream(cv::Mat& frame, int frameCount)
     return true;
 }
 
-bool FFmpegPushStream::PushStream(cv::Mat& frame, int frameCount, int mode)
+bool FFmpegPushStream::PushStream(cv::Mat& frame, uint64_t  frameCount)
 {
-    static int count = 1;
-    if(count>0)
-    {
-        std::cout<<"use ffmpeg new api!"<<std::endl;
-        count--;
-    }
-
     AVPacket *pkt = av_packet_alloc();
     if (!pkt)
     {

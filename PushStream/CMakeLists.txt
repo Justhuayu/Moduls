@@ -4,6 +4,8 @@ project(PushStream)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+#忽略deprecated警告
+add_compile_options(-Wno-deprecated-declarations)
 #添加项目根目录路径
 set(PROJECT_ROOT_DIR ${CMAKE_SOURCE_DIR})
 add_definitions(-DPROJECT_ROOT_DIR="${PROJECT_ROOT_DIR}")
@@ -18,8 +20,8 @@ message(STATUS "OpenCV Libraries: ${OpenCV_LIBS}")
 
 #配置本地ffmpeg
 set(FFMPEG_DIR "${CMAKE_SOURCE_DIR}/../_libs/ffmpeg")
+set(ENV{PKG_CONFIG_PATH} "${FFMPEG_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 find_package(PkgConfig REQUIRED)
-set(ENV{PKG_CONFIG_PATH} "${FFMPEG_DIR}/_libs/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 pkg_check_modules(AVCODEC REQUIRED libavcodec)
 pkg_check_modules(AVFORMAT REQUIRED libavformat)
 pkg_check_modules(AVUTIL REQUIRED libavutil)

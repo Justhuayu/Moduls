@@ -1,11 +1,20 @@
 #include "MultiPushStream.h"
 
 MultiPushStream::MultiPushStream(const int stream_num,PushStreamParam *param)
-    :m_dataCapacity(stream_num)
+    :m_dataCapacity(stream_num * m_dataCapacity_weight)
     ,m_dataQueue(m_dataCapacity)
 {
     m_push_stream.resize(stream_num);
     Init(stream_num,param);
+    m_stop_flag = false;
+}
+
+MultiPushStream::MultiPushStream(const int stream_num, std::vector<PushStreamParam> params)
+    :m_dataCapacity(stream_num * m_dataCapacity_weight)
+    ,m_dataQueue(m_dataCapacity)
+{
+    m_push_stream.resize(stream_num);
+    Init(stream_num,params.data());
     m_stop_flag = false;
 }
 
@@ -34,7 +43,7 @@ void MultiPushStream::ThreadPushStreamFunc(MultiPushStream::ThreadPushParam& par
 {
     //子线程推流函数，等待一定时间没数据后，自动停止
     // 线程添加 FFmpegPushStream 类，初始化 FFmpegPushStream
-    thread_local FFmpegPushStream push_tool(param.streamParam.width,param.streamParam.height,param.streamParam.fps,param.streamParam.url);
+    thread_local FFmpegPushStream push_tool(param.streamParam.width,param.streamParam.height,param.streamParam.fps,param.streamParam.url.c_str());
     push_tool.InitFFmpeg();
     while(1)
     {
@@ -86,6 +95,10 @@ void MultiPushStream::PushData(const InputData& data)
     //向循环队列中投递推流数据
     std::lock_guard<std::mutex> lock(mutex);
     m_dataQueue.push(data);
+    if(m_dataQueue.size() == m_dataCapacity)
+    {
+       std::cout<<"push stream too fast, data queue is full, data queue size is "<<m_dataQueue.size()<<std::endl;
+    }
     cv.notify_one();
 }
 

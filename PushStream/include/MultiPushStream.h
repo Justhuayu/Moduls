@@ -32,13 +32,16 @@ public:
         uint32_t width;
         uint32_t height;
         uint32_t fps;
-        char* url;
+        std::string url;
     };
     void PushData(const InputData& data);//向队列中投递推流数据
+    //TODO:Invoke()异步实现，避免调用者自己开线程
     void Invoke();//启动工作线程
 
 public:
     MultiPushStream(const int stream_num,PushStreamParam *param);
+    MultiPushStream(const int stream_num,std::vector<PushStreamParam> params);
+
     ~MultiPushStream();
 private:
     void Init(const int stream_num,PushStreamParam *param);//一个流对应一个线程
@@ -55,8 +58,9 @@ private:
     };
     static void ThreadPushStreamFunc(MultiPushStream::ThreadPushParam &param);//子线程推流
 private:
+    int m_dataCapacity_weight = 24 * 1;
     std::vector<std::shared_ptr<FFmpegPushStream>> m_push_stream;//用于推流
-    int m_dataCapacity=24 * 1;//消息队列的大小，默认允许存放24帧的数据
+    int m_dataCapacity;//消息队列的大小，默认允许存放24帧的数据
     std::unordered_map<std::string,std::shared_ptr<ThreadPushParam>> m_thread_map;//流 uuid 和 子线程参数结构体的映射表
     CircularQueue<InputData> m_dataQueue;//存放输入的图片序列
     std::condition_variable cv;//m_dataQueue的条件变量
